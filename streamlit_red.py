@@ -11,7 +11,7 @@ st.title("Interfaz de Red Social con SQLAlchemy + Streamlit")
 menu = st.sidebar.selectbox("Selecciona una vista", ["Usuarios", "Publicaciones", "Reacciones"])
 
 if menu == "Usuarios":
-    st.header("👤 Lista de Usuarios")
+    st.header("Lista de Usuarios")
     usuarios = session.query(Usuario).all()
     for usuario in usuarios:
         st.write(f"ID: {usuario.id} - {usuario.nombre}")
