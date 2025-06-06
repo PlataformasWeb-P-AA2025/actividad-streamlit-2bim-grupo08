@@ -1,72 +1,55 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Numeric
-
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint
 
+from config import cadena_base_datos 
 
-# se importa información del archivo configuracion
-from config import cadena_base_datos
 
 engine = create_engine(cadena_base_datos)
 
 Base = declarative_base()
 
-class Departamento(Base):
-    __tablename__ = 'departamento'
-    id       = Column(Integer, primary_key=True)
-    nombre   = Column(String(100))
-    cursos   = relationship('Curso', back_populates='departamento')
+class Reaccion(Base):
+    __tablename__ = 'reaccion'
+    id = Column(Integer, primary_key=True)
+    usuario_id = Column(Integer, ForeignKey('usuario.id'))
+    publicacion_id = Column(Integer, ForeignKey('publicacion.id'))
+    emocion = Column(String(50), nullable=False)
 
-class Instructor(Base):
-    __tablename__ = 'instructor'
-    id       = Column(Integer, primary_key=True)
-    nombre   = Column(String(200))
-    cursos   = relationship('Curso', back_populates='instructor')
+    usuario = relationship("Usuario", back_populates="reacciones")
+    publicacion = relationship("Publicacion", back_populates="reacciones")
 
-class Curso(Base):
-    __tablename__ = 'curso'
-    id              = Column(Integer, primary_key=True)
-    titulo          = Column(String(200))
-    departamento_id = Column(Integer, ForeignKey('departamento.id'))
-    instructor_id   = Column(Integer, ForeignKey('instructor.id'))
-    departamento    = relationship('Departamento', back_populates='cursos')
-    instructor      = relationship('Instructor',  back_populates='cursos')
-    inscripciones   = relationship('Inscripcion', back_populates='curso')
-    tareas          = relationship('Tarea',       back_populates='curso')
 
-class Estudiante(Base):
-    __tablename__ = 'estudiante'
-    id             = Column(Integer, primary_key=True)
-    nombre         = Column(String(200))
-    inscripciones  = relationship('Inscripcion', back_populates='estudiante')
-    entregas       = relationship('Entrega',     back_populates='estudiante')
+    __table_args__ = (UniqueConstraint('usuario_id', 'publicacion_id', name='uix_usuario_publicacion'),)
 
-class Inscripcion(Base):
-    __tablename__ = 'inscripcion'
-    estudiante_id = Column(Integer, ForeignKey('estudiante.id'), primary_key=True)
-    curso_id      = Column(Integer, ForeignKey('curso.id'),      primary_key=True)
-    fecha_inscripcion = Column(DateTime)
-    estudiante    = relationship('Estudiante', back_populates='inscripciones')
-    curso         = relationship('Curso',      back_populates='inscripciones')
+    def __repr__(self):
+        return f"Reaccion: usuario_id={self.usuario_id}, publicacion_id={self.publicacion_id}, emocion={self.emocion}"
 
-class Tarea(Base):
-    __tablename__ = 'tarea'
-    id        = Column(Integer, primary_key=True)
-    curso_id  = Column(Integer, ForeignKey('curso.id'))
-    titulo    = Column(String(200))
-    fecha_entrega = Column(DateTime)
-    curso     = relationship('Curso',    back_populates='tareas')
-    entregas  = relationship('Entrega',  back_populates='tarea')
 
-class Entrega(Base):
-    __tablename__ = 'entrega'
-    id          = Column(Integer, primary_key=True)
-    tarea_id    = Column(Integer, ForeignKey('tarea.id'))
-    estudiante_id = Column(Integer, ForeignKey('estudiante.id'))
-    fecha_envio = Column(DateTime)
-    calificacion = Column(Numeric)
-    tarea        = relationship('Tarea',     back_populates='entregas')
-    estudiante   = relationship('Estudiante',back_populates='entregas')
+class Usuario(Base):
+    __tablename__ = 'usuario'
+    id = Column(Integer, primary_key=True)
+    nombre = Column(String(50), nullable=False)
+
+    publicaciones = relationship("Publicacion", back_populates="usuario")
+    reacciones = relationship("Reaccion", back_populates="usuario")
+
+    def __repr__(self):
+        return f"Usuario: nombre={self.nombre}"
+
+
+class Publicacion(Base):
+    __tablename__ = 'publicacion'
+    id = Column(Integer, primary_key=True)
+    contenido = Column(String(250), nullable=False)
+    usuario_id = Column(Integer, ForeignKey('usuario.id'))
+
+    usuario = relationship("Usuario", back_populates="publicaciones")
+    reacciones = relationship("Reaccion", back_populates="publicacion")
+
+    def __repr__(self):
+        return f"Publicacion: contenido={self.contenido[:30]}..."
+        
 
 Base.metadata.create_all(engine)

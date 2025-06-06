@@ -16,6 +16,8 @@ def listar_departamentos():
     """
     st.header("Departamentos")
     session = get_session()
+
+    #realmente aqui empieza el codigo
     departamentos = session.query(Departamento).all()
 
 
@@ -48,6 +50,12 @@ def listar_departamentos():
             else:
                 st.write("_No hay cursos asociados a este departamento._")
     session.close()
+
+
+
+
+
+
 
 def listar_instructores():
     """
@@ -82,6 +90,12 @@ def listar_instructores():
             else:
                 st.write("_Este instructor no dicta ningún curso._")
     session.close()
+
+
+
+
+
+
 
 def listar_cursos():
     """
@@ -139,6 +153,11 @@ def listar_cursos():
                 st.write("_No hay tareas en este curso._")
     session.close()
 
+
+
+
+
+
 def listar_estudiantes():
     """
     Muestra todos los estudiantes y, dentro de cada expander, las inscripciones y entregas.
@@ -188,6 +207,11 @@ def listar_estudiantes():
                 st.write("_Este estudiante no ha hecho ninguna entrega._")
     session.close()
 
+
+
+
+
+
 def listar_inscripciones():
     """
     Muestra todas las inscripciones y, para cada una, detalla estudiante y curso.
@@ -212,6 +236,12 @@ def listar_inscripciones():
         })
     st.table(filas)
     session.close()
+
+
+
+
+
+
 
 
 def listar_tareas():
@@ -239,6 +269,13 @@ def listar_tareas():
         })
     st.table(filas)
     session.close()
+
+
+
+
+
+
+
 
 
 def listar_entregas():
@@ -270,6 +307,17 @@ def listar_entregas():
     session.close()
 
 
+
+
+
+
+
+
+
+
+
+
+#main general llamado a cada funcion
 def main():
     st.title("Explorador de objetos SQLAlchemy en Streamlit")
 
